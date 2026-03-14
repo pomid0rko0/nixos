@@ -7,6 +7,7 @@
     ./shell.nix
     ./firefox.nix
     ./dev.nix
+    ./git.nix
     ./gaming.nix
     ./waybar.nix
     ./fnott.nix
