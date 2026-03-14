@@ -38,16 +38,37 @@ wpa_cli
 > quit
 ```
 
-### 6. Клонировать конфигурацию и установить
+### 6. Настроить прокси (если нужен)
+
+Узнать IP телефона (шлюз по умолчанию):
 
 ```bash
-git clone https://github.com/ваш/репо.git /tmp/nixos
+ip route
+```
+
+Задать переменные (заменить `X.X.X.X` на IP из предыдущей команды):
+
+```bash
+export http_proxy=http://X.X.X.X:10809
+export https_proxy=http://X.X.X.X:10809
+```
+
+Проверить:
+
+```bash
+curl -I https://cache.nixos.org
+```
+
+### 7. Клонировать конфигурацию и установить
+
+```bash
+git clone https://github.com/pomid0rko0/nixos.git /tmp/nixos
 sudo nix --experimental-features "nix-command flakes" run github:nix-community/disko -- --mode disko /tmp/nixos/modules/disko.nix
 sudo nixos-generate-config --root /mnt --no-filesystems --dir /tmp/nixos
 sudo nixos-install --flake /tmp/nixos#vector
 ```
 
-### 7. После установки
+### 8. После установки
 
 Задать пароль пользователю:
 
