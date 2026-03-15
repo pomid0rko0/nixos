@@ -26,7 +26,13 @@
   users.users.pomid0rko_0 = {
     isNormalUser = true;
     shell = pkgs.zsh;
-    extraGroups = [ "wheel" "input" "video" "audio" "networkmanager" ];
+    extraGroups = [
+      "wheel"
+      "input"
+      "video"
+      "audio"
+      "networkmanager"
+    ];
   };
 
   # Необходимо для назначения zsh оболочкой пользователя
@@ -44,7 +50,10 @@
   nixpkgs.config.allowUnfree = true;
 
   # Включить flakes
-  nix.settings.experimental-features = [ "nix-command" "flakes" ];
+  nix.settings.experimental-features = [
+    "nix-command"
+    "flakes"
+  ];
 
   # Автоматическая сборка мусора — раз в 2 недели по средам, удаляет старше 30 дней
   nix.gc = {

@@ -5,11 +5,11 @@
     enable = true;
     package = pkgs.vscodium;
 
-    extensions = with pkgs.vscode-extensions; [
+    profiles.default.extensions = with pkgs.vscode-extensions; [
       jnoortheen.nix-ide
     ];
 
-    userSettings = {
+    profiles.default.userSettings = {
       "editor.fontFamily" = "'JetBrains Mono', monospace";
       "editor.fontSize" = 14;
       "editor.formatOnSave" = true;

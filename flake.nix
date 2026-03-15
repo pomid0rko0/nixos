@@ -13,14 +13,26 @@
       url = "github:nix-community/disko";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    daeuniverse = {
+      url = "github:daeuniverse/flake.nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
+    agenix = {
+      url = "github:ryantm/agenix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
-  outputs = { nixpkgs, disko, home-manager, ... }: {
+  outputs = { nixpkgs, disko, home-manager, daeuniverse, agenix, ... }: {
     nixosConfigurations.vector = nixpkgs.lib.nixosSystem {
       system = "x86_64-linux";
       modules = [
         ./configuration.nix
         disko.nixosModules.disko
+        daeuniverse.nixosModules.dae
+        agenix.nixosModules.default
 
         home-manager.nixosModules.home-manager
         {

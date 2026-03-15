@@ -11,7 +11,7 @@
   };
 
   # Отключить PulseAudio (несовместим с PipeWire pulse bridge)
-  hardware.pulseaudio.enable = false;
+  services.pulseaudio.enable = false;
 
   # RealtimeKit — позволяет PipeWire запрашивать приоритет реального времени
   security.rtkit.enable = true;
