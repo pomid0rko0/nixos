@@ -52,13 +52,13 @@ let
 
         upstream {
             google_doh: 'https://dns.google/dns-query'
-            ali_doh: 'https://dns.alidns.com/dns-query'
+            yandex: 'udp://dns.yandex.net:53'
         }
 
         routing {
             request {
-                qname(geosite:category-ru) -> ali_doh
-                qname(geosite:geolocation-cn) -> ali_doh
+                qname(geosite:category-ru) -> yandex
+                qname(geosite:geolocation-cn) -> yandex
                 fallback: google_doh
             }
             response {
