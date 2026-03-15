@@ -17,11 +17,11 @@ let
     condition:
     lib.concatStringsSep "\n" (map (sub: "        filter: subtag(${sub}) && ${condition}") subNames);
 
-  proxyFilters = mkFilters "!name(keyword: 'Россия')";
+  proxyFilters = mkFilters "!name(keyword: 'Россия') && !name(keywod: 'Турция')";
   torrentFilters = mkFilters "name(keyword: 'Torrent')";
   geminiFilters = builtins.concatStringsSep "\n" [
     (mkFilters "name(keyword: 'Gemini')")
-    (mkFilters "!name(keyword: 'Россия') && !name(keyword: 'Gemini')")
+    (mkFilters "!name(keyword: 'Россия') && !name(keywod: 'Турция') && !name(keyword: 'Gemini')")
   ];
 
   # Шаблон конфига dae — @SUBSCRIPTIONS@ заменяется при старте сервиса
@@ -31,14 +31,14 @@ let
         log_level: info
         wan_interface: auto
         auto_config_kernel_parameter: true
-        tcp_check_url: 'http://cp.cloudflare.com'
-        tcp_check_http_method: HEAD
+        tcp_check_url: 'https://cp.cloudflare.com'
+        tcp_check_http_method: GET
         udp_check_dns: 'dns.google:53'
         check_interval: 30s
         check_tolerance: 50ms
         dial_mode: domain
         sniffing_timeout: 100ms
-        utls_imitate: chrome_auto
+        utls_imitate: firefox_auto
     }
 
     subscription {
@@ -51,19 +51,19 @@ let
         ipversion_prefer: 4
 
         upstream {
-            googledns: 'tcp+udp://dns.google:53'
-            alidns: 'udp://dns.alidns.com:53'
+            google_doh: 'https://dns.google/dns-query'
+            ali_doh: 'https://dns.alidns.com/dns-query'
         }
 
         routing {
             request {
-                qname(geosite:category-ru) -> alidns
-                qname(geosite:geolocation-cn) -> alidns
-                fallback: googledns
+                qname(geosite:category-ru) -> ali_doh
+                qname(geosite:geolocation-cn) -> ali_doh
+                fallback: google_doh
             }
             response {
-                upstream(googledns) -> accept
-                ip(geoip:private) && !qname(geosite:category-ru) -> googledns
+                upstream(google_doh) -> accept
+                ip(geoip:private) && !qname(geosite:category-ru) -> google_doh
                 fallback: accept
             }
         }

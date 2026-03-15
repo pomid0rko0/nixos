@@ -1,12 +1,15 @@
 {
-  config,
-  pkgs,
-  lib,
   ...
 }:
 
 {
   networking.hostName = "vector";
+
+  # DNS — публичные резервные серверы
+  networking.nameservers = [
+    "8.8.8.8"
+    "1.1.1.1"
+  ];
 
   # NetworkManager — Wi-Fi, проводное подключение, VPN
   networking.networkmanager.enable = true;
