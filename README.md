@@ -75,3 +75,47 @@ sudo nixos-install --flake /tmp/nixos#vector
 ```bash
 sudo passwd pomid0rko_0
 ```
+
+### 9. Настроить dae (прокси)
+
+dae использует agenix для хранения подписок. После первой загрузки SSH-ключи хоста
+генерируются автоматически — нужно привязать к ним секреты.
+
+Получить age-ключ из SSH-ключа хоста:
+
+```bash
+nix-shell -p ssh-to-age --run 'cat /etc/ssh/ssh_host_ed25519_key.pub | ssh-to-age'
+```
+
+Вставить полученный ключ в `secrets/secrets.nix`:
+
+```nix
+let
+  vector = "age1...";  # ← ключ из команды выше
+in
+{
+  "vpn-subscriptions.age".publicKeys = [ vector ];
+}
+```
+
+Создать файл с подписками (формат dae):
+
+```
+    subscription_1: 'subscription 1 url addres'
+subscription_2: 'subscription 2 url addres'
+    subscription_1: 'subscription 1 url addres'
+```
+
+Зашифровать подписки (**через `-R`, не `-r`**):
+
+```bash
+nix-shell -p age --run 'age -R /etc/ssh/ssh_host_ed25519_key.pub -o secrets/vpn-subscriptions.age subscriptions.txt'
+rm subscriptions.txt
+```
+
+Применить:
+
+```bash
+git add secrets/
+sudo nixos-rebuild switch --flake .#vector
+```
