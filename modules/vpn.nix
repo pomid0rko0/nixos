@@ -13,15 +13,25 @@ let
     "proxyliberty_vless_wl"
   ];
 
-  mkFilters =
-    condition:
-    lib.concatStringsSep "\n" (map (sub: "        filter: subtag(${sub}) && ${condition}") subNames);
+  mkFiltersFor =
+    subs: condition: modifier:
+    lib.concatStringsSep "\n" (
+      map (sub: "        filter: subtag(${sub}) && ${condition}${modifier}") subs
+    );
 
-  proxyFilters = mkFilters "!name(keyword: 'Россия') && !name(keywod: 'Турция')";
+  mkFilters = condition: mkFiltersFor subNames condition "";
+
+  # proxyCondition = "!name(keyword: 'Россия') && !name(keyword: 'Турция')";
+  # proxyFilters = builtins.concatStringsSep "\n" [
+  #   (mkFiltersFor [ "proxyliberty_vless" ] proxyCondition "")
+  #   (mkFiltersFor [ "proxyliberty_vless_wa" ] proxyCondition " [add_latency: +1000ms]")
+  #   (mkFiltersFor [ "proxyliberty_vless_wl" ] proxyCondition " [add_latency: +5000ms]")
+  # ];
+  proxyFilters = mkFilters "!name(keyword: 'Россия') && !name(keyword: 'Турция')";
   torrentFilters = mkFilters "name(keyword: 'Torrent')";
   geminiFilters = builtins.concatStringsSep "\n" [
     (mkFilters "name(keyword: 'Gemini')")
-    (mkFilters "!name(keyword: 'Россия') && !name(keywod: 'Турция') && !name(keyword: 'Gemini')")
+    (mkFilters "!name(keyword: 'Россия') && !name(keyword: 'Турция') && !name(keyword: 'Gemini')")
   ];
 
   # Шаблон конфига dae — @SUBSCRIPTIONS@ заменяется при старте сервиса
@@ -51,19 +61,19 @@ let
         ipversion_prefer: 4
 
         upstream {
-            google_doh: 'https://dns.google/dns-query'
-            yandex: 'udp://dns.yandex.net:53'
+            googledns: 'tcp+udp://8.8.8.8:53'
+            alidns: 'udp://223.5.5.5:53'
         }
 
         routing {
             request {
-                qname(geosite:category-ru) -> yandex
-                qname(geosite:geolocation-cn) -> yandex
-                fallback: google_doh
+                qname(geosite:category-ru) -> alidns
+                qname(geosite:geolocation-cn) -> alidns
+                fallback: googledns
             }
             response {
-                upstream(google_doh) -> accept
-                ip(geoip:private) && !qname(geosite:category-ru) -> google_doh
+                upstream(googledns) -> accept
+                ip(geoip:private) && !qname(geosite:category-ru) && !qname(geosite:geolocation-cn) -> googledns
                 fallback: accept
             }
         }
@@ -73,6 +83,8 @@ let
         proxy {
     ${proxyFilters}
             policy: min_moving_avg
+            tcp_check_url: 'https://www.youtube.com/generate_204'
+            tcp_check_http_method: GET
         }
 
         torrent {
@@ -90,6 +102,7 @@ let
 
     routing {
         pname(NetworkManager, systemd-resolved, dnsmasq) -> direct
+        dip(8.8.8.8, 223.5.5.5) -> direct
         dip(224.0.0.0/3, 'ff00::/8') -> direct
         dip(geoip:private) -> direct
         domain(geosite:private) -> direct

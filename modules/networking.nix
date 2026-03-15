@@ -9,6 +9,7 @@
   networking.nameservers = [
     "8.8.8.8"
     "1.1.1.1"
+    "223.5.5.5"
   ];
 
   # NetworkManager — Wi-Fi, проводное подключение, VPN
