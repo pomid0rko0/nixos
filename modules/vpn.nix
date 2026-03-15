@@ -21,13 +21,12 @@ let
 
   mkFilters = condition: mkFiltersFor subNames condition "";
 
-  # proxyCondition = "!name(keyword: 'Россия') && !name(keyword: 'Турция')";
-  # proxyFilters = builtins.concatStringsSep "\n" [
-  #   (mkFiltersFor [ "proxyliberty_vless" ] proxyCondition "")
-  #   (mkFiltersFor [ "proxyliberty_vless_wa" ] proxyCondition " [add_latency: +1000ms]")
-  #   (mkFiltersFor [ "proxyliberty_vless_wl" ] proxyCondition " [add_latency: +5000ms]")
-  # ];
-  proxyFilters = mkFilters "!name(keyword: 'Россия') && !name(keyword: 'Турция')";
+  proxyCondition = "!name(keyword: 'Россия') && !name(keyword: 'Турция')";
+  proxyFilters = builtins.concatStringsSep "\n" [
+    (mkFiltersFor [ "proxyliberty_vless" ] proxyCondition "")
+    (mkFiltersFor [ "proxyliberty_vless_wa" ] proxyCondition " [add_latency: +1000ms]")
+    (mkFiltersFor [ "proxyliberty_vless_wl" ] proxyCondition " [add_latency: +5000ms]")
+  ];
   torrentFilters = mkFilters "name(keyword: 'Torrent')";
   geminiFilters = builtins.concatStringsSep "\n" [
     (mkFilters "name(keyword: 'Gemini')")
@@ -140,6 +139,8 @@ in
       disableTxChecksumIpGeneric = false;
       configFile = "/etc/dae/config.dae";
     };
+
+    systemd.services.dae.environment.GODEBUG = "netdns=cgo";
 
     system.activationScripts.dae-config = {
       deps = [ "agenixInstall" ];
