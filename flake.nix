@@ -25,22 +25,31 @@
     };
   };
 
-  outputs = { nixpkgs, disko, home-manager, daeuniverse, agenix, ... }: {
-    nixosConfigurations.vector = nixpkgs.lib.nixosSystem {
-      system = "x86_64-linux";
-      modules = [
-        ./configuration.nix
-        disko.nixosModules.disko
-        daeuniverse.nixosModules.dae
-        agenix.nixosModules.default
+  outputs =
+    {
+      nixpkgs,
+      disko,
+      home-manager,
+      daeuniverse,
+      agenix,
+      ...
+    }:
+    {
+      nixosConfigurations.vector = nixpkgs.lib.nixosSystem {
+        system = "x86_64-linux";
+        modules = [
+          ./configuration.nix
+          disko.nixosModules.disko
+          daeuniverse.nixosModules.dae
+          agenix.nixosModules.default
 
-        home-manager.nixosModules.home-manager
-        {
-          home-manager.useGlobalPkgs = true;
-          home-manager.useUserPackages = true;
-          home-manager.users.pomid0rko_0 = import ./home/pomid0rko_0.nix;
-        }
-      ];
+          home-manager.nixosModules.home-manager
+          {
+            home-manager.useGlobalPkgs = true;
+            home-manager.useUserPackages = true;
+            home-manager.users.pomid0rko_0 = import ./home/pomid0rko_0.nix;
+          }
+        ];
+      };
     };
-  };
 }
