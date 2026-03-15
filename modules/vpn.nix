@@ -13,27 +13,16 @@ let
     "proxyliberty_vless_wl"
   ];
 
-  groupFilter = sub: "subtag(${sub})";
+  mkFilters =
+    condition:
+    lib.concatStringsSep "\n" (map (sub: "        filter: subtag(${sub}) && ${condition}") subNames);
 
-  proxyFilters = lib.concatStringsSep "\n" (
-    map (
-      sub: "        filter: ${groupFilter sub} && !name(keyword: 'Россия') && !name(keyword: 'Torrent')"
-    ) subNames
-  );
-
-  torrentFilters = lib.concatStringsSep "\n" (
-    map (sub: "        filter: ${groupFilter sub} && name(keyword: 'Torrent')") subNames
-  );
-
-  geminiFilters = lib.concatStringsSep "\n" (
-    map (
-      sub: "        filter: ${groupFilter sub} && !name(keyword: 'Россия') && name(keyword: 'Gemini')"
-    ) subNames
-    ++ map (
-      sub:
-      "        filter: ${groupFilter sub} && !name(keyword: 'Россия') && !name(keyword: 'Torrent') && !name(keyword: 'Gemini')"
-    ) subNames
-  );
+  proxyFilters = mkFilters "!name(keyword: 'Россия')";
+  torrentFilters = mkFilters "name(keyword: 'Torrent')";
+  geminiFilters = builtins.concatStringsSep "\n" [
+    (mkFilters "name(keyword: 'Gemini')")
+    (mkFilters "!name(keyword: 'Россия') && !name(keyword: 'Gemini')")
+  ];
 
   # Шаблон конфига dae — @SUBSCRIPTIONS@ заменяется при старте сервиса
   daeConfigTemplate = pkgs.writeText "dae-config-template" ''
