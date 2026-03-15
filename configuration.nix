@@ -7,10 +7,8 @@
     ./modules/hardware.nix
     ./modules/nvidia.nix
     ./modules/desktop.nix
-    ./modules/gaming.nix
     ./modules/sound.nix
     ./modules/networking.nix
-    ./modules/profiles.nix
     ./modules/vpn.nix
   ];
 
@@ -21,19 +19,8 @@
 
   # Часовой пояс и язык
   time.timeZone = "Europe/Moscow";
-  i18n.defaultLocale = "ru_RU.UTF-8";
-  environment.sessionVariables.LANGUAGE = "ru:en";
-
-  # Закрытие крышки — только блокировка, без засыпания
-  services.logind = {
-    lidSwitch = "lock";
-    lidSwitchExternalPower = "lock";
-    # игнорировать действия при подключенном мониторе
-    lidSwitchDocked = "ignore";
-  };
-
-  # PAM для hyprlock (разрешение на проверку пароля)
-  security.pam.services.hyprlock = {};
+  i18n.defaultLocale = "en_US.UTF-8";
+  environment.sessionVariables.LANGUAGE = "en:ru";
 
   # Основной пользователь
   users.users.pomid0rko_0 = {
@@ -51,11 +38,9 @@
     vim
     wget
     htop
-    jdk17  # Java для Minecraft (большинство версий)
-    jdk21  # Java для новых версий
   ];
 
-  # Несвободные пакеты (NVIDIA, Steam)
+  # Несвободные пакеты (NVIDIA)
   nixpkgs.config.allowUnfree = true;
 
   # Включить flakes

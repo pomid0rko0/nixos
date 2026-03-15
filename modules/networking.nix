@@ -1,4 +1,9 @@
-{ config, pkgs, lib, ... }:
+{
+  config,
+  pkgs,
+  lib,
+  ...
+}:
 
 {
   networking.hostName = "vector";
@@ -8,4 +13,5 @@
 
   # Межсетевой экран — включён, порты не открыты
   networking.firewall.enable = true;
+
 }

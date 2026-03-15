@@ -1,21 +1,10 @@
-{ config, pkgs, firefox-addons, ... }:
+{ config, pkgs, ... }:
 
 {
   programs.firefox = {
     enable = true;
     profiles.default = {
       isDefault = true;
-
-      extensions.packages = with firefox-addons; [
-        ublock-origin
-        sponsorblock
-        clearurls
-        consent-o-matic
-        decentraleyes
-        facebook-container
-        privacy-badger
-        return-youtube-dislikes
-      ];
 
       settings = {
         # --- Приватность ---
@@ -37,15 +26,15 @@
       };
 
       search = {
-        default = "Google";
+        default = "google";
         force = true;
         engines = {
-          "Wikipedia" = {
-            urls = [{ template = "https://ru.wikipedia.org/w/index.php?search={searchTerms}"; }];
+          "wikipedia" = {
+            urls = [ { template = "https://ru.wikipedia.org/w/index.php?search={searchTerms}"; } ];
             definedAliases = [ "@wiki" ];
           };
-          "DuckDuckGo" = {
-            urls = [{ template = "https://duckduckgo.com/?q={searchTerms}"; }];
+          "ddg" = {
+            urls = [ { template = "https://duckduckgo.com/?q={searchTerms}"; } ];
             definedAliases = [ "@ddg" ];
           };
         };
