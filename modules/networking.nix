@@ -12,6 +12,8 @@
     "223.5.5.5"
   ];
 
+  services.resolved.enable = true;
+
   # NetworkManager — Wi-Fi, проводное подключение, VPN
   networking.networkmanager.enable = true;
 
