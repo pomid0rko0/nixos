@@ -24,8 +24,8 @@ let
   proxyCondition = "!name(keyword: 'Россия') && !name(keyword: 'Турция')";
   proxyFilters = builtins.concatStringsSep "\n" [
     (mkFiltersFor [ "proxyliberty_vless" ] proxyCondition "")
-    (mkFiltersFor [ "proxyliberty_vless_wa" ] proxyCondition " [add_latency: +1000ms]")
-    (mkFiltersFor [ "proxyliberty_vless_wl" ] proxyCondition " [add_latency: +5000ms]")
+    (mkFiltersFor [ "proxyliberty_vless_wa" ] proxyCondition " [add_latency: +10000ms]")
+    (mkFiltersFor [ "proxyliberty_vless_wl" ] proxyCondition " [add_latency: +100000ms]")
   ];
   torrentFilters = mkFilters "name(keyword: 'Torrent')";
   geminiFilters = builtins.concatStringsSep "\n" [
@@ -60,19 +60,20 @@ let
         ipversion_prefer: 4
 
         upstream {
-            googledns: 'tcp+udp://8.8.8.8:53'
-            alidns: 'udp://223.5.5.5:53'
+            google-doh: 'https://8.8.8.8/dns-query'
+            ali-dns: 'tcp+udp://223.5.5.5:53'
+            yandex-dns: 'tcp+udp://77.88.8.8:53'
         }
 
         routing {
             request {
-                qname(geosite:category-ru) -> alidns
-                qname(geosite:geolocation-cn) -> alidns
-                fallback: googledns
+                qname(geosite:category-ru) -> yandex-dns
+                qname(geosite:geolocation-cn) -> ali-dns
+                fallback: google-doh
             }
             response {
-                upstream(googledns) -> accept
-                ip(geoip:private) && !qname(geosite:category-ru) && !qname(geosite:geolocation-cn) -> googledns
+                upstream(google-doh) -> accept
+                ip(geoip:private) && !qname(geosite:category-ru) && !qname(geosite:geolocation-cn) -> google-doh
                 fallback: accept
             }
         }
@@ -101,13 +102,12 @@ let
 
     routing {
         pname(NetworkManager, systemd-resolved, dnsmasq) -> direct
-        dip(8.8.8.8, 223.5.5.5) -> direct
+        dip(8.8.8.8, 223.5.5.5, 77.88.8.8) -> direct
         dip(224.0.0.0/3, 'ff00::/8') -> direct
         dip(geoip:private) -> direct
         domain(geosite:private) -> direct
 
         pname(qbittorrent) -> torrent
-        pname(dota2, java) -> direct
 
         domain(geosite:category-ads-all) -> block
         domain(keyword: gemini.google.com, keyword: google.com) -> gemini
@@ -136,11 +136,8 @@ in
     };
     services.dae = {
       enable = true;
-      disableTxChecksumIpGeneric = false;
       configFile = "/etc/dae/config.dae";
     };
-
-    systemd.services.dae.environment.GODEBUG = "netdns=cgo";
 
     system.activationScripts.dae-config = {
       deps = [ "agenixInstall" ];
